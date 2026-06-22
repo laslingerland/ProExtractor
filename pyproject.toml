@@ -21,6 +21,10 @@ test = ["pytest>=8"]
 [project.scripts]
 proextractor = "proextractor.cli:main"
 
+[tool.setuptools.packages.find]
+include = ["proextractor*"]
+exclude = ["data*", "exports*", "tests*"]
+
 [tool.setuptools.package-data]
 "proextractor.adapters.sqlite" = ["schema.sql"]
 
