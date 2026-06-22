@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proextractor"
+version = "0.1.0"
+description = "Import, inspect, store, and export ProPresenter song files"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+dependencies = []
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+proextractor = "proextractor.cli:main"
+
+[tool.setuptools.package-data]
+"proextractor.adapters.sqlite" = ["schema.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
