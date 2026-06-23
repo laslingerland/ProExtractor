@@ -4,7 +4,7 @@ from proextractor.domain.models import Song
 class TextSongExporter:
     def export(self, song: Song) -> str:
         section_names = {section.uuid: section.name for section in song.sections}
-        output: list[str] = []
+        output: list[str] = [f"Song title: {song.title}"]
         previous_section: str | None = None
         for slide in song.arranged_slides():
             if slide.section_uuid != previous_section:
@@ -14,4 +14,3 @@ class TextSongExporter:
             if texts:
                 output.append("\n".join(texts))
         return "\n\n".join(output) + "\n"
-

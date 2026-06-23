@@ -72,8 +72,26 @@ def test_repeated_section_label_for_same_uuid_is_not_a_duplicate_section() -> No
     assert sections[0].slide_uuids == [slide_uuid]
 
 
+def test_inspection_starts_with_the_song_title(tmp_path) -> None:
+    source = tmp_path / "Inspected song.pro"
+    source.write_bytes(b"")
+
+    output = ProFileInspector().inspect(source).render()
+
+    assert output.splitlines()[0] == "Song title: Inspected song"
+
+
 def test_exporters() -> None:
     song = make_song()
-    assert TextSongExporter().export(song) == "[Verse]\n\nHello\nHallo\n"
-    assert CsvSongExporter().export(song).splitlines() == ["section,slide_index,sung_text,translation", "Verse,0,Hello,Hallo"]
-    assert json.loads(JsonSongExporter().export(song))["arrangements"][0]["is_default"] is True
+    assert TextSongExporter().export(song) == "Song title: Example\n\n[Verse]\n\nHello\nHallo\n"
+    assert CsvSongExporter().export(song).splitlines() == ["Song title: Example", "", "section,slide_index,sung_text,translation", "Verse,0,Hello,Hallo"]
+    json_output = JsonSongExporter().export(song)
+    assert json_output.index('"title": "Example"') < json_output.index('"id":')
+    assert json.loads(json_output)["arrangements"][0]["is_default"] is True
+
+
+def test_text_and_csv_exports_include_the_title_when_a_song_has_no_slides() -> None:
+    song = Song(None, "Empty song", "empty", [], [], [])
+
+    assert TextSongExporter().export(song) == "Song title: Empty song\n"
+    assert CsvSongExporter().export(song).splitlines()[:2] == ["Song title: Empty song", ""]
