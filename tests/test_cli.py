@@ -37,10 +37,11 @@ def test_native_single_and_bulk_file_export(tmp_path) -> None:
 
     output_file = tmp_path / "one" / "song.txt"
     assert main(["export", str(identifier), "--sqlite", str(database), "--output", str(output_file)]) == 0
-    assert output_file.read_text(encoding="utf-8") == "[Verse]\n\nHello\nHallo\n"
+    assert output_file.read_text(encoding="utf-8") == "Song title: Example/Song\n\n[Verse]\n\nHello\nHallo\n"
 
     output_directory = tmp_path / "all"
-    assert main(["export", "--all", "--sqlite", str(database), "--format", "json", "--output-dir", str(output_directory)]) == 0
-    exported_files = list(output_directory.glob("*.json"))
+    assert main(["export", "--all", "--sqlite", str(database), "--format", "txt", "--output-dir", str(output_directory)]) == 0
+    exported_files = list(output_directory.glob("*.txt"))
     assert len(exported_files) == 1
-    assert exported_files[0].name == f"{identifier} - Example_Song.json"
+    assert exported_files[0].name == f"{identifier} - Example_Song.txt"
+    assert exported_files[0].read_text(encoding="utf-8").startswith("Song title: Example/Song\n\n")

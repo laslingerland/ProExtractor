@@ -67,7 +67,7 @@ class ProFileInspection:
     fallback_decisions: list[str]
 
     def render(self, debug: bool = False) -> str:
-        lines = [f"Source: {self.path}", f"Title: {self.title}", f"Source ID: {self.source_id}", f"Strings: {len(self.strings)}  UUID occurrences: {len(self.uuids)}  RTF blocks: {len(self.rtf_blocks)}", "", "Sections:"]
+        lines = [f"Song title: {self.title}", f"Source: {self.path}", f"Source ID: {self.source_id}", f"Strings: {len(self.strings)}  UUID occurrences: {len(self.uuids)}  RTF blocks: {len(self.rtf_blocks)}", "", "Sections:"]
         lines.extend(f"  0x{item.offset:08x} {item.uuid} -> {item.name} ({len(item.slide_uuids)} slides)" for item in self.sections)
         lines.append("\nSlides:")
         lines.extend(f"  0x{item.offset:08x} {item.uuid} section={item.section_uuid or '?'} sung={item.sung_text!r} translation={item.translation!r}" for item in self.slides)
