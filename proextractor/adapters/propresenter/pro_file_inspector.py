@@ -200,12 +200,18 @@ class ProFileInspector:
             sung = ""
             translation = ""
             for block in blocks:
+                matched.add(block.offset)
+                # Legacy ProPresenter files can contain empty RTF placeholders
+                # between the actual sung-text and translation layers. They
+                # carry layout data, but must not erase text recovered from an
+                # earlier block in the same slide payload.
+                if not block.text.strip():
+                    continue
                 context = data[max(start, block.offset - 700):block.offset].decode("cp1252", errors="ignore")
                 if context.rfind("Vertaling") > context.rfind("Gezongen tekst"):
                     translation = block.text
                 else:
                     sung = block.text
-                matched.add(block.offset)
             slides.append(SlideFinding(value, section_by_slide.get(value), start, sung, translation))
         return slides, matched
 
