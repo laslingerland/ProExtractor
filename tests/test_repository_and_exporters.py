@@ -2,7 +2,7 @@ import json
 
 from proextractor.adapters.exporters import CsvSongExporter, JsonSongExporter, TextSongExporter
 from proextractor.adapters.propresenter.binary_string_scanner import LocatedString, LocatedUUID
-from proextractor.adapters.propresenter.pro_file_inspector import ProFileInspector
+from proextractor.adapters.propresenter.pro_file_inspector import ProFileInspector, RTFBlock, SectionFinding
 from proextractor.adapters.sqlite import SQLiteSongRepository
 from proextractor.domain.models import Arrangement, ArrangementSlideRef, Section, Slide, Song
 
@@ -70,6 +70,25 @@ def test_repeated_section_label_for_same_uuid_is_not_a_duplicate_section() -> No
 
     assert [(section.uuid, section.name) for section in sections] == [(section_uuid, "Verse 1")]
     assert sections[0].slide_uuids == [slide_uuid]
+
+
+def test_empty_rtf_placeholder_does_not_erase_sung_text() -> None:
+    slide_uuid = "B98978B2-FF32-4B17-8379-9155A178D791"
+    section_uuid = "2FBF8F3C-A24C-4C93-A35B-C89FF0235C81"
+    data = bytearray(1400)
+    data[50:64] = b"Gezongen tekst"
+    data[150:164] = b"Gezongen tekst"
+    data[1100:1109] = b"Vertaling"
+
+    slides, matched = ProFileInspector._slides(
+        bytes(data),
+        [SectionFinding(section_uuid, "Verse 1", 0, [slide_uuid])],
+        [LocatedUUID(10, slide_uuid), LocatedUUID(100, slide_uuid)],
+        [RTFBlock(250, 10, "Original lyrics"), RTFBlock(1000, 10, ""), RTFBlock(1200, 10, "Vertaling")],
+    )
+
+    assert [(slide.sung_text, slide.translation) for slide in slides] == [("Original lyrics", "Vertaling")]
+    assert matched == {250, 1000, 1200}
 
 
 def test_inspection_starts_with_the_song_title(tmp_path) -> None:
